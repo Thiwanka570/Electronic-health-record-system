@@ -10,6 +10,7 @@ const labTestRoutes = require('./routes/labtestRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const dosageRoutes = require('./routes/dosageRoutes');
 const patientServiceRoute = require('./routes/patientServiceRoutes');
+const prescriptionServiceRote=require('./routes/prescriptionRoutes')
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/lab-tests', labTestRoutes);
 app.use('/items', itemRoutes);
 app.use('/dosages', dosageRoutes);
 app.use('/patientService', patientServiceRoute);
+app.use('/prescription',prescriptionServiceRote);
 
 app.use((req, res, next) => {
     console.log(`Received request: ${req.method} ${req.url}`);

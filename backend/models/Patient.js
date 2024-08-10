@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 
 const patientSchema = new mongoose.Schema({
+  title:String,
   firstName: String,
   lastName: String,
+  age:String,
   dateOfBirth: Date,
   gender: String,
   contactInfo: String,

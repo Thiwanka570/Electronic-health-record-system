@@ -2,31 +2,21 @@ const PatientServiceModel = require('../models/PatientService'); // Renamed to a
 
 const createpatientService = async (req, res) => {
     console.log("Received request to save patient services...");
-    const { services } = req.body;
-    console.log('Request body:', req.body);
-
-    if (!Array.isArray(services) || services.length === 0) {
-        return res.status(400).json({ error: 'No services provided' });
-    }
 
     try {
-        // Validate the data before saving
-        for (const service of services) {
-            const requiredFields = ['patientId', 'itemId', 'dosageId', 'MedicalRecordId', 'dateTime', 'patientServiceNo'];
-            for (const field of requiredFields) {
-                if (!service[field]) {
-                    throw new Error(`Missing required field: ${field}`);
-                }
-            }
-        }
+        const patientService = new PatientServiceModel(req.body);
+        console.log('Request body:', req.body);
 
-        const savedpatientServices = await PatientServiceModel.insertMany(services);
-        res.status(201).json(savedpatientServices);
+        const savedPatientService = await patientService.save();
+        console.log("Saved patient service:", savedPatientService);
+
+        res.status(201).json(savedPatientService);
     } catch (error) {
         console.error('Error saving patient services:', error);
         res.status(500).json({ error: error.message });
     }
 };
+
 
 
 
@@ -44,11 +34,35 @@ const getAllpatientServices = async (req, res) => {
     }
 };
 
+const getAllpatientServicesByPrescriptionNumber = async (req, res) => {
+    try {
+        console.log('Request params:', req.params);
+        const { pNo } = req.params;
+        console.log(pNo);
+        
+        const patientServices = await PatientServiceModel.find({ patientServiceNo: pNo })
+            .populate('patientId')
+            .populate('dosageId')
+            .populate('itemId');
+
+        if (!patientServices.length) {
+            return res.status(404).json({ error: 'No patient services found for this prescription number' });
+        }
+        
+        res.status(200).json(patientServices);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 // Get a patientService by ID
 const getpatientServiceById = async (req, res) => {
     try {
         const { id } = req.params;
-        const patientService = await patientService.findById(id)
+        
+        
+        const patientService = await PatientServiceModel.findById(id)
             .populate('patientId')
             .populate('dosageId')
             .populate('itemId');
@@ -56,7 +70,7 @@ const getpatientServiceById = async (req, res) => {
         if (!patientService) {
             return res.status(404).json({ error: 'patientService not found' });
         }
-
+        
         res.status(200).json(patientService);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -68,8 +82,9 @@ const updatepatientService = async (req, res) => {
     try {
         const { id } = req.params;
         const { patientId, dosageId, itemId, dateTime, patientServiceNo } = req.body;
-
-        const updatedpatientService = await patientService.findByIdAndUpdate(id, {
+        console.log(id);
+        
+        const updatedpatientService = await PatientServiceModel.findByIdAndUpdate(id, {
             patientId,
             dosageId,
             itemId,
@@ -91,7 +106,7 @@ const updatepatientService = async (req, res) => {
 const deletepatientService = async (req, res) => {
     try {
         const { id } = req.params;
-        const deletedpatientService = await patientService.findByIdAndDelete(id);
+        const deletedpatientService = await PatientServiceModel.findByIdAndDelete(id);
 
         if (!deletedpatientService) {
             return res.status(404).json({ error: 'patientService not found' });
@@ -108,5 +123,6 @@ module.exports = {
     getAllpatientServices,
     getpatientServiceById,
     updatepatientService,
-    deletepatientService
+    deletepatientService,
+    getAllpatientServicesByPrescriptionNumber
 };

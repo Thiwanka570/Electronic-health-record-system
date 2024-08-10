@@ -27,8 +27,8 @@ const patientServiceSchema = new Schema({
         required: true
     },
     patientServiceNo: {
-        type: String
-        
+        type: Number,
+        required: true
     }
 });
 
